@@ -59,6 +59,11 @@ namespace ChopshopSignin
         public string DataFile { get; private set; }
 
         /// <summary>
+        /// The file with the roster information
+        /// </summary>
+        public string RosterFile { get; private set; }
+
+        /// <summary>
         /// The folder under OutputFolder where backup data files will be located
         /// </summary>
         public string BackupFolder { get; private set; }
@@ -85,6 +90,7 @@ namespace ChopshopSignin
         {
             OutputFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             DataFile = System.IO.Path.Combine(OutputFolder, Properties.Settings.Default.ScanDataFileName);
+            RosterFile = System.IO.Path.Combine(OutputFolder, Properties.Settings.Default.RosterFile);
             BackupFolder = System.IO.Path.Combine(OutputFolder, Properties.Settings.Default.BackupFolder);
 
             Kickoff = Enumerable.Range(1, 7)
@@ -103,6 +109,7 @@ namespace ChopshopSignin
             BackupFolder = Properties.Settings.Default.BackupFolder;
             CreateSummaryOnExit = Properties.Settings.Default.CreateSummaryOnExit;
             MaxBackupFilesToKeep = Properties.Settings.Default.MaxBackupFilesToKeep;
+
         }
 
         /// <summary>

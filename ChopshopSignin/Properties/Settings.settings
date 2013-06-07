@@ -38,5 +38,8 @@
     <Setting Name="MaxBackupFilesToKeep" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">2147483647</Value>
     </Setting>
+    <Setting Name="RosterFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Roster.xml</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
