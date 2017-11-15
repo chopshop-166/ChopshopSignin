@@ -202,5 +202,17 @@ namespace ChopshopSignin.Properties {
                 this["CameraDeviceNumber"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int SignOutRemainingTime {
+            get {
+                return ((int)(this["SignOutRemainingTime"]));
+            }
+            set {
+                this["SignOutRemainingTime"] = value;
+            }
+        }
     }
 }

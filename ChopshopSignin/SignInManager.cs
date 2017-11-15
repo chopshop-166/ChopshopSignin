@@ -121,6 +121,25 @@ namespace ChopshopSignin
         /// <summary>
         /// Find anyone signed in and sign them out
         /// </summary>
+        public void SignRemainingOut()
+        {
+            var remaining = people.Values.Where(x => x.CurrentLocation == Scan.LocationType.In);
+            var status = string.Format("Signed out all {0} remaining at {1}", remaining.Count(), DateTime.Now.ToShortTimeString());
+
+            changeCount += remaining.Count();
+
+            foreach (var person in remaining)
+                person.SignInOrOut(Scan.LocationType.Uncounted);
+
+            model.ScanStatus = status;
+            model.UpdateCheckedInList(people.Values);
+
+            Commit();
+        }
+
+        /// <summary>
+        /// Find anyone signed in and sign them out
+        /// </summary>
         public void SignAllOut()
         {
             var confirmAllOutCmd = AllOutConfirmation;
@@ -137,7 +156,7 @@ namespace ChopshopSignin
                 changeCount += remaining.Count();
 
                 foreach (var person in remaining)
-                    person.SignInOrOut(false);
+                    person.SignInOrOut(Scan.LocationType.Out);
 
                 model.ScanStatus = status;
                 model.UpdateCheckedInList(people.Values);
@@ -166,6 +185,7 @@ namespace ChopshopSignin
             {
                 { EventList.Event.ResetLastScan, ResetLastScanEventTimeout },
                 { EventList.Event.UpdateTotalTime, UpdateTotalTimeEventTimeout },
+                { EventList.Event.SignOutRemaining, SignOutRemainingEventTimeout }
                 // ClearDisplayStatus not used in SignInManager
             };
 
@@ -175,8 +195,10 @@ namespace ChopshopSignin
             DoubleScanIgnoreTimeout = TimeSpan.FromSeconds(Properties.Settings.Default.DoubleScanIgnoreTime);
             ResetScanDataTimeout = TimeSpan.FromSeconds(Properties.Settings.Default.ScanDataResetTime);
             UpdateTotalTimeTimeout = TimeSpan.FromSeconds(Properties.Settings.Default.TotalTimeUpdateInterval);
-
+            SignOutRemainingTime = TimeSpan.FromHours(Properties.Settings.Default.SignOutRemainingTime);
             Properties.Settings.Default.PropertyChanged += SettingChanged;
+
+            UpdateSignOutRemainingTime();
 
             timer = new Timer(timerInterval);
             timer.Elapsed += ClockTick;
@@ -202,6 +224,10 @@ namespace ChopshopSignin
                     UpdateTotalTime();
                     break;
 
+                case "SignOutRemainingTimeout":
+                    SignOutRemainingTime = TimeSpan.FromHours(settings.SignOutRemainingTime);
+                    break;
+
                 case "TimeSince":
                     UpdateTotalTime();
                     break;
@@ -220,6 +246,7 @@ namespace ChopshopSignin
         private TimeSpan DoubleScanIgnoreTimeout;
         private TimeSpan ResetScanDataTimeout;
         private TimeSpan UpdateTotalTimeTimeout;
+        private TimeSpan SignOutRemainingTime;
         // Dictionary for determining who is currently signed in
         private readonly Dictionary<string, Person> people;
 
@@ -295,7 +322,7 @@ namespace ChopshopSignin
         }
 
         /// <summary>
-        /// Handles when the ResetCurrentPerson even expires and the currently selected
+        /// Handles when the ResetCurrentPerson event expires and the currently selected
         /// person needs to be reset
         /// </summary>
         private void ResetLastScanEventTimeout()
@@ -314,6 +341,28 @@ namespace ChopshopSignin
 
             // Schedule another update
             eventList.Set(EventList.Event.UpdateTotalTime, UpdateTotalTimeTimeout);
+        }
+
+        /// <summary>
+        /// Handles when the SignOutRemaining event expires and any remaining people 
+        /// should be signed out
+        /// </summary>
+        private void SignOutRemainingEventTimeout()
+        {
+            // Call function to sign out remaining users
+            SignRemainingOut();
+
+            // Update timer
+            UpdateSignOutRemainingTime();
+
+        }
+
+        private void UpdateSignOutRemainingTime()
+        {
+            // Schedule another update
+            TimeSpan TimeTillMidnight = DateTime.Today.AddDays(1).Subtract(DateTime.Now) + SignOutRemainingTime;
+            //TimeSpan TimeTillMidnight = DateTime.Now.AddMinutes(1).Subtract(DateTime.Now);
+            eventList.Set(EventList.Event.SignOutRemaining, TimeTillMidnight);
         }
 
         /// <summary>

@@ -26,6 +26,12 @@ namespace ChopshopSignin
             set { SetField(ref m_ScanDataResetTime, value); }
         }
 
+        public int SignOutRemainingTime
+        {
+            get { return m_SignOutRemainingTime; }
+            set { SetField(ref m_SignOutRemainingTime, value); }
+        }
+
         public int ClearScanStatusTime
         {
             get { return m_ClearScanStatusTime; }
@@ -75,6 +81,7 @@ namespace ChopshopSignin
             TotalTimeUpdateInterval = settings.TotalTimeUpdateInterval;
             ScanInTimeoutWindow = settings.DoubleScanIgnoreTime;
             ScanDataResetTime = settings.ScanDataResetTime;
+            SignOutRemainingTime = settings.SignOutRemainingTime;
             ClearScanStatusTime = settings.ClearScanStatusTime;
             MaxBackupFilesToKeep = settings.MaxBackupFilesToKeep;
             ShowTimeUntilShip = settings.ShowTimeUntilShip;
@@ -138,6 +145,7 @@ namespace ChopshopSignin
                 settings.TotalTimeUpdateInterval = TotalTimeUpdateInterval;
                 settings.DoubleScanIgnoreTime = ScanInTimeoutWindow;
                 settings.ScanDataResetTime = ScanDataResetTime;
+                settings.SignOutRemainingTime = SignOutRemainingTime;
                 settings.ClearScanStatusTime = ClearScanStatusTime;
                 settings.MaxBackupFilesToKeep = MaxBackupFilesToKeep;
                 settings.ShowTimeUntilShip = ShowTimeUntilShip;
@@ -153,6 +161,7 @@ namespace ChopshopSignin
         private int m_TotalTimeUpdateInterval;
         private int m_ScanInTimeoutWindow;
         private int m_ScanDataResetTime;
+        private int m_SignOutRemainingTime;
         private int m_ClearScanStatusTime;
         private int m_MaxBackupFilesToKeep;
         private bool m_ShowTimeUntilShip;

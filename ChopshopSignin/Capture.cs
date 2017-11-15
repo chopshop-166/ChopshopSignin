@@ -112,8 +112,13 @@ namespace ChopshopSignin
                 if (m_VidControl != null)
                 {
                     // Tell the camera to send an image
-                    var hr = m_VidControl.SetMode(m_pinStill, VideoControlFlags.Trigger);
-                    DsError.ThrowExceptionForHR(hr);
+                    VideoControlFlags flags;
+                    m_VidControl.GetMode(m_pinStill, out flags);
+                    if ((flags & VideoControlFlags.Trigger) == VideoControlFlags.Trigger)
+                    {
+                        var hr = m_VidControl.SetMode(m_pinStill, VideoControlFlags.Trigger);
+                        DsError.ThrowExceptionForHR(hr);
+                    }
                 }
 
                 // Start waiting
@@ -241,7 +246,7 @@ namespace ChopshopSignin
                 pRenderIn = DsFindPin.ByDirection(pRenderer, PinDirection.Input, 0);
 
                 // Add the sample grabber to the graph
-                hr = m_FilterGraph.AddFilter(baseGrabFlt, "Ds.NET Grabber");
+                hr = m_FilterGraph.AddFilter(baseGrabFlt, "DS.NET Grabber");
                 DsError.ThrowExceptionForHR(hr);
 
                 if (m_VidControl == null)

@@ -142,7 +142,7 @@ namespace ChopshopSignin
         /// <returns></returns>
         public SignInOutResult Toggle()
         {
-            return SignInOrOut(!IsSignedIn);
+            return SignInOrOut(IsSignedIn ? Scan.LocationType.Out : Scan.LocationType.In);
         }
 
         /// <summary>
@@ -150,12 +150,15 @@ namespace ChopshopSignin
         /// </summary>
         /// <param name="signingIn">If true, indicates the person is signing in</param>
         /// <returns>The result of the operatoin</returns>
-        public SignInOutResult SignInOrOut(bool signingIn)
+        public SignInOutResult SignInOrOut(Scan.LocationType Direction)
         {
-            if (signingIn)
+            if (Direction == Scan.LocationType.In)
                 return SignIn();
-
-            return SignOut();
+            else if (Direction == Scan.LocationType.Out)
+                return SignOut();
+            else 
+                return UncountedSignOut();
+            
         }
 
         /// <summary>
@@ -245,7 +248,7 @@ namespace ChopshopSignin
                 // If the scan indicates in
                 if (scan.Direction == Scan.LocationType.In)
                 {
-                    // If the there isn't an in scan already
+                    // If there isn't an in scan already
                     if (prev == null)
                     {
                         // Add it
@@ -267,6 +270,17 @@ namespace ChopshopSignin
                         prev = null;
                     }
                 }
+                else if (scan.Direction == Scan.LocationType.Uncounted)
+                {
+                    if (prev != null)
+                    {
+                        // If the scan is uncounted, then store the start time as the end time
+                        // This lets us track the person as having stopped by, without crediting them
+                        var t = new SignInPair(new[] { prev, prev });
+                        pairs.Add(t);
+                        prev = null;
+                    }
+                }
             }
 
             if (prev != null)
@@ -279,13 +293,13 @@ namespace ChopshopSignin
         }
 
         /// <summary>
-        /// Signs a person in, and returns an corresponding sign in/out result
+        /// Signs a person in, and returns a corresponding sign in/out result
         /// </summary>
         private SignInOutResult SignIn()
         {
-            if (CurrentLocation == Scan.LocationType.Out)
+            if (CurrentLocation != Scan.LocationType.In)
             {
-                Timestamps.Add(new Scan(true));
+                Timestamps.Add(new Scan(Scan.LocationType.In));
 
                 var statusMessage = string.Format("{0} {1} in at {2}", FirstName, LastName, Timestamps.Last().ScanTime.ToShortTimeString());
                 return new SignInOutResult(true, statusMessage);
@@ -298,14 +312,34 @@ namespace ChopshopSignin
         }
 
         /// <summary>
-        /// Signs a person out, and returns an corresponding sign in/out result
+        /// Signs a person out, and returns a corresponding sign in/out result
         /// </summary>
         /// <returns></returns>
         private SignInOutResult SignOut()
         {
             if (CurrentLocation == Scan.LocationType.In)
             {
-                Timestamps.Add(new Scan(false));
+                Timestamps.Add(new Scan(Scan.LocationType.Out));
+
+                var statusMessage = string.Format("{0} {1} out at {2}", FirstName, LastName, Timestamps.Last().ScanTime.ToShortTimeString());
+                return new SignInOutResult(true, statusMessage);
+            }
+            else
+            {
+                var statusMessage = "You are already signed out, scan \"IN\" instead";
+                return new SignInOutResult(false, statusMessage);
+            }
+        }
+
+        /// <summary>
+        /// Adds an uncounted entry, and returns a corresponding sign in/out result
+        /// </summary>
+        /// <returns></returns>
+        private SignInOutResult UncountedSignOut()
+        {
+            if (CurrentLocation == Scan.LocationType.In)
+            {
+                Timestamps.Add(new Scan(Scan.LocationType.Uncounted));
 
                 var statusMessage = string.Format("{0} {1} out at {2}", FirstName, LastName, Timestamps.Last().ScanTime.ToShortTimeString());
                 return new SignInOutResult(true, statusMessage);

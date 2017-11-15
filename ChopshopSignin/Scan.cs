@@ -8,7 +8,7 @@ namespace ChopshopSignin
 {
     sealed internal class Scan : IEquatable<Scan>
     {
-        public enum LocationType { Invalid, In, Out }
+        public enum LocationType { Invalid, In, Out, Uncounted }
 
         public LocationType Direction { get; private set; }
         public DateTime ScanTime { get; private set; }
@@ -18,10 +18,10 @@ namespace ChopshopSignin
             ScanTime = DateTime.Now;
         }
 
-        public Scan(bool scannedIn)
+        public Scan(LocationType scannedIn)
             : this()
         {
-            Direction = scannedIn ? LocationType.In : LocationType.Out;
+            Direction = scannedIn;
         }
 
         public Scan(XElement xmlScan)
