@@ -13,7 +13,7 @@ namespace ChopshopSignin
         /// <summary>
         /// Events that can be timed
         /// </summary>
-        public enum Event { ResetLastScan, UpdateTotalTime, ClearDisplayStatus }
+        public enum Event { ResetLastScan, UpdateTotalTime, ClearDisplayStatus, SignOutRemaining }
 
         /// <summary>
         /// Creates a list of all the events, with all being disabled
