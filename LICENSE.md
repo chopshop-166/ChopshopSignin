@@ -1,7 +1,7 @@
 The MIT License (MIT)
 =====================
 
-Copyright © `2016` `FRC Team 166`
+Copyright © `2021` `FRC Team 166`
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
